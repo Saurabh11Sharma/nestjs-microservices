@@ -13,6 +13,6 @@ export class UsersController {
 
   @Post('/login')
   async login(@Body() loginUser: CreateUserDto) {
-    return this.usersService.findOne(loginUser);
+    return this.usersService.verifyUser(loginUser.email, loginUser.password);
   }
 }

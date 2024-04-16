@@ -22,7 +22,7 @@ import * as Joi from 'joi';
       isGlobal: true,
       validationSchema: Joi.object({
         MONGODB_URI: Joi.string().required(),
-        HTTP_PORT: Joi.number().required(),
+        RESERVATION_HTTP_PORT: Joi.number().required(),
       }),
     }),
   ],

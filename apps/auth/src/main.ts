@@ -14,6 +14,6 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
 
   const configService: ConfigService = app.get(ConfigService);
-  await app.listen(configService.get<number>('HTTP_PORT'));
+  await app.listen(configService.get<number>('AUTH_HTTP_PORT'));
 }
 bootstrap();
