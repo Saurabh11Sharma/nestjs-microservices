@@ -27,6 +27,19 @@ services:
     volumes:
       - .:/usr/src/app
 
+  payments:
+    build:
+      context: .
+      dockerfile: ./apps/payments/Dockerfile
+      target: development
+    command: npm run start:dev payments
+    env_files:
+      - ./apps/payments/.env
+    ports:
+      - '3003:3003'
+    volumes:
+      - .:/usr/src/app
+
   # uncomment for localhost
   # mongo:
     # image: mongo
