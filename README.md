@@ -1,73 +1,80 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# NestJS Microservices Workspace
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS 10 / TypeScript workspace organised into separate service applications and shared code. The repository is useful for exploring service boundaries, authentication patterns, container setup and a multi-application NestJS structure.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Workspace layout
 
-## Description
+| Path | Purpose / current scope |
+|---|---|
+| apps/auth | Authentication application with Passport local and JWT strategies, JWT configuration and user module integration |
+| apps/payments | Payments application module and controller/service scaffolding |
+| apps/reservations | Reservations application within the workspace |
+| libs/common | Shared library area; currently includes common logging support |
+| docker-compose.yaml | Local multi-container development orchestration |
+| apps/*/Dockerfile | Per-application container build definitions |
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The workspace has service-level scaffolding and implementation of varying depth. Review each application before assuming that every business workflow is complete or production-ready.
 
-## Installation
+## Technology visible in the repository
 
-```bash
-$ npm install
-```
+- NestJS and TypeScript
+- MongoDB / Mongoose integration in the auth application
+- Passport local and JWT strategies
+- NestJS microservices package
+- Pino-based logging dependencies
+- Docker and Docker Compose
+- Jest and Supertest dependencies
 
-## Running the app
+## Local development
 
-```bash
-# development
-$ npm run start
+Requirements: Node.js, npm and Docker Desktop.
 
-# watch mode
-$ npm run start:dev
+Install dependencies from the repository root:
 
-# production mode
-$ npm run start:prod
-```
+    npm install
 
-## Test
+The auth application validates these environment variables at startup:
 
-```bash
-# unit tests
-$ npm run test
+- MONGODB_URI
+- JWT_SECRET
+- JWT_EXPIRATION
+- AUTH_HTTP_PORT
+- AUTH_TCP_PORT
 
-# e2e tests
-$ npm run test:e2e
+Create the required app-level environment files locally (for example, apps/auth/.env). Do not commit real secrets. Other applications may have additional configuration requirements; inspect their ConfigModule setup before starting the full workspace.
 
-# test coverage
-$ npm run test:cov
-```
+Build the workspace:
 
-## Support
+    npm run build
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Run tests:
 
-## Stay in touch
+    npm test
+    npm run test:e2e
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+The Docker Compose file references app-level .env files. Create those files before running:
 
-## License
+    docker compose config
+    docker compose up --build
 
-Nest is [MIT licensed](LICENSE).
+## Engineering considerations
+
+- Keep each service's configuration and secrets outside source control.
+- Define explicit API and message contracts between services.
+- Make message handlers idempotent before enabling automatic retries.
+- Add health checks, graceful shutdown and structured logs.
+- Add integration tests around service boundaries.
+- Document data ownership and failure / retry behaviour.
+- Keep the workspace a modular learning project until deployment, security and reliability concerns are addressed.
+
+## Roadmap
+
+- Complete and document each service's business use cases.
+- Add reproducible local dependencies and safe environment templates.
+- Add contract and end-to-end tests across service boundaries.
+- Define messaging semantics, retries, dead-letter handling and idempotency.
+- Add CI for lint, type-check, tests and builds.
+
+## Contact
+
+Saurabh Sharma · https://github.com/Saurabh11Sharma
