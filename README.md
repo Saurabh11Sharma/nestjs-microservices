@@ -1,27 +1,27 @@
 # NestJS Microservices Workspace
 
-A NestJS 10 / TypeScript workspace organised into separate service applications and shared code. The repository is useful for exploring service boundaries, authentication patterns, container setup and a multi-application NestJS structure.
+A NestJS 10 / TypeScript workspace organised into separate applications with shared libraries. It demonstrates a hybrid HTTP/TCP authentication service, a reservation API that communicates with the auth service, and a small TCP payments message handler.
 
-## Workspace layout
+## Workspace architecture
 
-| Path | Purpose / current scope |
+| Application / library | Current implementation |
 |---|---|
-| apps/auth | Authentication application with Passport local and JWT strategies, JWT configuration and user module integration |
-| apps/payments | Payments application module and controller/service scaffolding |
-| apps/reservations | Reservations application within the workspace |
-| libs/common | Shared library area; currently includes common logging support |
-| docker-compose.yaml | Local multi-container development orchestration |
-| apps/*/Dockerfile | Per-application container build definitions |
+| apps/auth | HTTP login endpoint using Passport local strategy; JWT strategy; TCP message pattern named authenticate; MongoDB / Mongoose user module |
+| apps/reservations | HTTP reservation CRUD endpoints; guarded create route; MongoDB persistence; TCP client connection to the auth service |
+| apps/payments | TCP microservice with a payments.ping message handler; this is a transport / application scaffold, not a payment-processing implementation |
+| libs/common | Shared database, logging, auth, constants, decorators and DTO modules |
+| docker-compose.yaml | Local MongoDB plus auth, reservations and payments application containers |
 
-The workspace has service-level scaffolding and implementation of varying depth. Review each application before assuming that every business workflow is complete or production-ready.
+The service areas have different levels of business implementation. In particular, the payments application is currently a small TCP handler scaffold; do not present it as a complete payment gateway.
 
-## Technology visible in the repository
+## Technology
 
-- NestJS and TypeScript
-- MongoDB / Mongoose integration in the auth application
+- NestJS 10 and TypeScript
+- MongoDB / Mongoose
 - Passport local and JWT strategies
-- NestJS microservices package
-- Pino-based logging dependencies
+- NestJS TCP transport
+- Joi environment validation
+- Pino-based logging
 - Docker and Docker Compose
 - Jest and Supertest dependencies
 
@@ -29,11 +29,30 @@ The workspace has service-level scaffolding and implementation of varying depth.
 
 Requirements: Node.js, npm and Docker Desktop.
 
-Install dependencies from the repository root:
+1. Install dependencies from the repository root:
 
-    npm install
+       npm install
 
-The auth application validates these environment variables at startup:
+2. Create the service environment files from the committed examples:
+
+       copy apps\auth\.env.example apps\auth\.env
+       copy apps\reservations\.env.example apps\reservations\.env
+       copy apps\payments\.env.example apps\payments\.env
+
+   On macOS / Linux, use cp instead of copy.
+
+3. Review the JWT secret in apps/auth/.env and replace the sample value with a long random local secret. Do not commit app .env files.
+
+4. Validate the Compose configuration and start the workspace:
+
+       docker compose config
+       docker compose up --build
+
+The Compose file starts MongoDB and then the service containers. Auth exposes HTTP on port 3001 and its TCP transport on port 3002 inside the Compose network; reservations exposes HTTP on port 3000; payments listens on TCP port 3003.
+
+## Key environment variables
+
+### Auth — apps/auth/.env
 
 - MONGODB_URI
 - JWT_SECRET
@@ -41,39 +60,42 @@ The auth application validates these environment variables at startup:
 - AUTH_HTTP_PORT
 - AUTH_TCP_PORT
 
-Create the required app-level environment files locally (for example, apps/auth/.env). Do not commit real secrets. Other applications may have additional configuration requirements; inspect their ConfigModule setup before starting the full workspace.
+### Reservations — apps/reservations/.env
 
-Build the workspace:
+- MONGODB_URI
+- RESERVATION_HTTP_PORT
+- AUTH_HOST
+- AUTH_PORT
+
+### Payments — apps/payments/.env
+
+- PAYMENTS_PORT
+
+Safe local examples are in the corresponding .env.example files.
+
+## Build and test
 
     npm run build
-
-Run tests:
-
     npm test
     npm run test:e2e
-
-The Docker Compose file references app-level .env files. Create those files before running:
-
-    docker compose config
-    docker compose up --build
 
 ## Engineering considerations
 
 - Keep each service's configuration and secrets outside source control.
 - Define explicit API and message contracts between services.
-- Make message handlers idempotent before enabling automatic retries.
+- Make message handlers idempotent before introducing automatic retries.
 - Add health checks, graceful shutdown and structured logs.
 - Add integration tests around service boundaries.
 - Document data ownership and failure / retry behaviour.
-- Keep the workspace a modular learning project until deployment, security and reliability concerns are addressed.
+- Extend the payments scaffold with explicit domain behaviour, validation and persistence before calling it a payment service implementation.
 
 ## Roadmap
 
-- Complete and document each service's business use cases.
-- Add reproducible local dependencies and safe environment templates.
 - Add contract and end-to-end tests across service boundaries.
 - Define messaging semantics, retries, dead-letter handling and idempotency.
+- Add robust request validation and object-level authorisation to reservation update / delete routes.
 - Add CI for lint, type-check, tests and builds.
+- Complete the payment domain use cases and documentation.
 
 ## Contact
 
