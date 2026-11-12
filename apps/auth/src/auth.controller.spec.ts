@@ -3,21 +3,23 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
 describe('AuthController', () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let authController: AuthController;
+  const authService = {
+    login: jest.fn(),
+  };
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    authService.login.mockReset();
+
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [AuthService],
+      providers: [{ provide: AuthService, useValue: authService }],
     }).compile();
 
-    authController = app.get<AuthController>(AuthController);
+    authController = module.get<AuthController>(AuthController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(1).toBe(1);
-    });
+  it('should be defined', () => {
+    expect(authController).toBeDefined();
   });
 });
