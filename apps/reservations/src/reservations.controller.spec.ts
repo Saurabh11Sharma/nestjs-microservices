@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ReservationsController } from './reservations.controller';
 import { ReservationsService } from './reservations.service';
+import { JwyAuthGuard } from '@app/common';
 
 describe('ReservationsController', () => {
   let controller: ReservationsController;
@@ -16,12 +17,19 @@ describe('ReservationsController', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
 
-    const module: TestingModule = await Test.createTestingModule({
+    const moduleBuilder = Test.createTestingModule({
       controllers: [ReservationsController],
       providers: [
         { provide: ReservationsService, useValue: reservationsService },
       ],
-    }).compile();
+    });
+
+    // A controller unit test should not create a real TCP client or require
+    // the AUTH_SERVICE provider. Guard behaviour is covered independently.
+    const module: TestingModule = await moduleBuilder
+      .overrideGuard(JwyAuthGuard)
+      .useValue({ canActivate: jest.fn(() => true) })
+      .compile();
 
     controller = module.get<ReservationsController>(ReservationsController);
   });
